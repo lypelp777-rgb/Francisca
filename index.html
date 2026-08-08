@@ -81,7 +81,7 @@
 
 /* ---------- 1. RESET & VARIÁVEIS ---------- */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; }
+html { scroll-behavior: smooth; overflow-x: hidden; width: 100%; }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
@@ -137,6 +137,8 @@ body {
   font-family: var(--font-body);
   line-height: 1.6;
   overflow-x: hidden;
+  width: 100%;
+  max-width: 100vw;
   transition: background .5s var(--ease), color .5s var(--ease);
 }
 
@@ -1011,7 +1013,7 @@ footer { background: linear-gradient(180deg, var(--bg-alt), var(--beige-dark)); 
         </div>
         <div class="compare-after-inner" id="compareAfterInner">
           <div class="compare-side compare-after" id="compareAfterSide">
-            <img src="./img/depois.png" alt="Peça depois do conserto, com acabamento impecável" class="photo-static-img" onerror="this.style.display='none'">
+            <img src="./img/foto.png" alt="Peça depois do conserto, com acabamento impecável" class="photo-static-img" onerror="this.style.display='none'">
             <i class="fa-solid fa-shirt" style="color:var(--pink-deep);"></i>
             <span style="font-size:.75rem; letter-spacing:.1em; text-transform:uppercase; color:var(--pink-deep); font-weight:700;">acabamento impecável</span>
           </div>
