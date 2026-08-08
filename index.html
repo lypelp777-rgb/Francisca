@@ -402,12 +402,13 @@ header.site-header.scrolled .nav-inner { box-shadow: var(--shadow-soft); }
   background: var(--surface); box-shadow: var(--shadow-strong);
   display:flex; align-items:center; justify-content:center; text-align:center; flex-direction:column;
   border: 1px dashed var(--gold);
+  z-index: 5;
 }
 .about-photo-badge b { font-family: var(--font-display); font-size: 1.5rem; color: var(--pink-deep); }
 .about-photo-badge span { font-size: .55rem; letter-spacing:.1em; text-transform:uppercase; color:var(--text-soft); }
 
 /* ---------- UPLOAD DE FOTO (Sobre & Antes/Depois) ---------- */
-.photo-static-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border-radius: inherit; z-index: 1; }
+.photo-static-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center; border-radius: inherit; z-index: 1; }
 .photo-upload { position: absolute; inset: 0; background-size: cover; background-position: center; border-radius: inherit; pointer-events: none; z-index: 2; }
 .upload-trigger {
   position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
@@ -423,13 +424,11 @@ header.site-header.scrolled .nav-inner { box-shadow: var(--shadow-soft); }
   display: flex; align-items: center; justify-content: center; font-size: 1.15rem;
   box-shadow: var(--shadow-soft); transform: translateY(6px); opacity: 0; transition: transform .35s var(--ease), opacity .35s var(--ease);
 }
-.about-photo-frame:hover .upload-trigger-btn, .compare-side:hover .upload-trigger-btn { transform: translateY(0); opacity: 1; }
+.about-photo-frame:hover .upload-trigger-btn { transform: translateY(0); opacity: 1; }
 .upload-trigger-label { font-size: .65rem; letter-spacing: .12em; text-transform: uppercase; color: #fff; font-weight: 600; transform: translateY(6px); opacity: 0; transition: transform .35s var(--ease) .03s, opacity .35s var(--ease) .03s; text-shadow: 0 2px 8px rgba(0,0,0,.4); }
-.about-photo-frame:hover .upload-trigger-label, .compare-side:hover .upload-trigger-label { transform: translateY(0); opacity: 1; }
+.about-photo-frame:hover .upload-trigger-label { transform: translateY(0); opacity: 1; }
 .upload-input { position: absolute; width: 1px; height: 1px; opacity: 0; overflow: hidden; }
-.compare-side { z-index: 1; }
-.compare-side .upload-trigger { z-index: 4; }
-.compare-side.has-photo i, .compare-side.has-photo > span:not(.upload-trigger-label) { display: none; }
+.compare-side { z-index: 1; cursor: default; }
 .remove-photo-btn {
   position: absolute; top: 10px; z-index: 5; width: 30px; height: 30px; border-radius: 50%;
   background: rgba(0,0,0,.55); color: #fff; display: flex; align-items: center; justify-content: center;
@@ -502,6 +501,31 @@ header.site-header.scrolled .nav-inner { box-shadow: var(--shadow-soft); }
   transition: border-color .3s ease, box-shadow .3s ease;
 }
 .calc-field select:focus, .calc-field input:focus { border-color: var(--pink-deep); box-shadow: 0 0 0 3px rgba(194,24,91,.15); }
+.calc-field label { display:flex; align-items:center; justify-content:space-between; gap:.6em; }
+.calc-static-value {
+  display:flex; align-items:center; gap:.6em; width:100%; padding:.85em 1em;
+  border-radius: var(--radius-sm); border: 1px solid var(--border);
+  background: var(--bg-alt); color: var(--text-soft); font-size: .92rem;
+}
+.calc-static-value i { color: var(--pink-deep); }
+.calc-service-extra { animation: calcSlideIn .35s var(--ease); }
+.calc-service-extra .calc-subfield { margin-bottom: .9rem; }
+@keyframes calcSlideIn { from { opacity:0; transform: translateY(-8px); } to { opacity:1; transform: translateY(0); } }
+.calc-add-btn {
+  display:inline-flex; align-items:center; gap:.5em; width:100%;
+  padding: .8em 1em; margin-bottom: 1.2rem; border-radius: var(--radius-sm);
+  border: 1.5px dashed var(--gold); color: var(--pink-deep); background: transparent;
+  font-size: .8rem; font-weight:600; letter-spacing:.04em; text-transform:uppercase;
+  transition: background .3s ease, border-color .3s ease;
+}
+.calc-add-btn:hover { background: rgba(201,162,39,.1); border-color: var(--pink-deep); }
+.calc-add-btn[hidden], .calc-field[hidden] { display:none !important; }
+.calc-remove-btn {
+  display:inline-flex; align-items:center; justify-content:center;
+  width: 1.6em; height: 1.6em; border-radius: 50%; background: rgba(194,24,91,.1);
+  color: var(--pink-deep); font-size: .8rem; transition: background .3s ease, transform .3s ease;
+}
+.calc-remove-btn:hover { background: rgba(194,24,91,.2); transform: rotate(90deg); }
 
 .calc-result {
   border-radius: var(--radius-md); background: linear-gradient(160deg, var(--pink-pale), var(--beige));
@@ -536,7 +560,15 @@ header.site-header.scrolled .nav-inner { box-shadow: var(--shadow-soft); }
 .compare-side { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:.6rem; }
 .compare-before { background: linear-gradient(160deg,#d8cfc4,#efe6d8); }
 .compare-after { background: linear-gradient(160deg, var(--pink-soft), var(--pink-pale)); }
+/* A foto do Antes/Depois deve sempre aparecer INTEIRA, sem cortar nada,
+   não importa o formato ou tamanho do arquivo (retrato, paisagem, quadrada). */
+.compare-side .photo-static-img { object-fit: contain; }
 .compare-after-inner { position:absolute; inset:0; overflow:hidden; width:50%; }
+/* A imagem "depois" mantém sempre o tamanho total do slider (definido via JS em px),
+   ancorada no canto superior-esquerdo do quadro cheio — apenas a janela de recorte
+   acima (.compare-after-inner) muda de largura ao arrastar. Assim a imagem nunca
+   estica/"dá zoom": o que muda é só quanto dela fica visível. */
+.compare-after-inner .compare-side.compare-after { inset: auto; top: 0; left: 0; right: auto; bottom: auto; }
 .compare-side i { font-size: 3.4rem; color: rgba(43,30,27,.3); }
 .compare-tag { position:absolute; top: 14px; font-size:.68rem; letter-spacing:.15em; text-transform:uppercase; font-weight:700; padding: .4em .9em; border-radius: 999px; background: rgba(0,0,0,.55); color:#fff; }
 .compare-tag.before { left: 14px; }
@@ -885,8 +917,8 @@ footer { background: linear-gradient(180deg, var(--bg-alt), var(--beige-dark)); 
             <option value="Outra peça">Outra peça</option>
           </select>
         </div>
-        <div class="calc-field">
-          <label for="calcServico">Serviço</label>
+        <div class="calc-field" id="calcServico1Wrap">
+          <label for="calcServico">Conserto 1</label>
           <select id="calcServico">
             <option value="Barra" data-base="15">Barra</option>
             <option value="Troca de zíper" data-base="15">Troca de zíper</option>
@@ -897,10 +929,42 @@ footer { background: linear-gradient(180deg, var(--bg-alt), var(--beige-dark)); 
             <option value="Transformação de peça" data-base="25">Transformação de peça</option>
           </select>
         </div>
-        <div class="calc-field">
-          <label for="calcQtd">Quantidade de peças</label>
-          <input type="number" id="calcQtd" min="1" value="1">
+
+        <div class="calc-field calc-service-extra" id="calcServico2Wrap" hidden>
+          <div class="calc-subfield">
+            <label for="calcTipo2">Tipo da roupa (2º conserto)</label>
+            <select id="calcTipo2">
+              <option value="Calça">Calça</option>
+              <option value="Vestido">Vestido</option>
+              <option value="Camisa">Camisa</option>
+              <option value="Blazer/Jaqueta">Blazer / Jaqueta</option>
+              <option value="Uniforme">Uniforme</option>
+              <option value="Roupa Infantil">Roupa Infantil</option>
+              <option value="Vestido de Festa">Vestido de Festa</option>
+              <option value="Outra peça">Outra peça</option>
+            </select>
+          </div>
+          <label for="calcServico2">
+            Conserto 2
+            <button type="button" id="calcRemoveServico2" class="calc-remove-btn" aria-label="Remover 2º conserto">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+          </label>
+          <select id="calcServico2">
+            <option value="Barra" data-base="15">Barra</option>
+            <option value="Troca de zíper" data-base="15">Troca de zíper</option>
+            <option value="Troca de elástico" data-base="15">Troca de elástico</option>
+            <option value="Conserto de rasgo" data-base="15">Conserto de rasgo</option>
+            <option value="Reposição de costura" data-base="15">Reposição de costura</option>
+            <option value="Ajuste completo" data-base="15">Ajuste completo</option>
+            <option value="Transformação de peça" data-base="25">Transformação de peça</option>
+          </select>
         </div>
+
+        <button type="button" id="calcAddServico2" class="calc-add-btn">
+          <i class="fa-solid fa-plus"></i> Adicionar 2º conserto
+        </button>
+
         <div class="calc-field">
           <label for="calcUrgencia">Prazo de entrega</label>
           <select id="calcUrgencia">
@@ -908,11 +972,8 @@ footer { background: linear-gradient(180deg, var(--bg-alt), var(--beige-dark)); 
           </select>
         </div>
         <div class="calc-field">
-          <label for="calcEntrega">Entrega</label>
-          <select id="calcEntrega">
-            <option value="Retirada no ateliê" data-add="0">Retirada no ateliê</option>
-            <option value="Entrega no bairro" data-add="8">Entrega no bairro · +R$8</option>
-          </select>
+          <label>Retirada</label>
+          <div class="calc-static-value"><i class="fa-solid fa-shop"></i> Somente retirada no ateliê</div>
         </div>
       </div>
 
@@ -925,7 +986,7 @@ footer { background: linear-gradient(180deg, var(--bg-alt), var(--beige-dark)); 
         </a>
         <div class="calc-entry-note">
           <i class="fa-solid fa-circle-info"></i>
-          <span>Para iniciar o conserto da sua peça, solicitamos uma <b>entrada de 50%</b>. O restante é pago na entrega!</span>
+          <span>Para iniciar o conserto da sua peça, solicitamos uma <b>entrada de 50%</b>. O restante é pago na retirada!</span>
         </div>
       </div>
     </div>
@@ -944,50 +1005,15 @@ footer { background: linear-gradient(180deg, var(--bg-alt), var(--beige-dark)); 
     <div class="compare-wrap" data-reveal="scale">
       <div class="compare" id="compareBox">
         <div class="compare-side compare-before" id="compareBeforeSide">
-          
-          
-          
-          
           <img src="./img/antes.jpeg" alt="Peça antes do conserto" class="photo-static-img" onerror="this.style.display='none'">
-          
-          
-          
-          
-          
           <i class="fa-solid fa-shirt"></i>
           <span style="font-size:.75rem; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-soft);">peça danificada</span>
-          <div class="photo-upload" id="beforePhotoUpload" aria-hidden="true"></div>
-          <label class="upload-trigger" for="beforePhotoInput">
-            <span class="upload-trigger-btn"><i class="fa-solid fa-camera"></i></span>
-            <span class="upload-trigger-label">Foto do "antes"</span>
-          </label>
-          <input type="file" accept="image/*" id="beforePhotoInput" class="upload-input" aria-label="Adicionar foto do antes">
-          <button type="button" class="remove-photo-btn" id="beforePhotoRemove" aria-label="Remover foto do antes" title="Remover foto" style="right:10px;">
-            <i class="fa-solid fa-xmark"></i>
-          </button>
         </div>
         <div class="compare-after-inner" id="compareAfterInner">
-          <div class="compare-side compare-after" id="compareAfterSide" style="width:200%;">
-            
-            
-            
-            
+          <div class="compare-side compare-after" id="compareAfterSide">
             <img src="./img/foto.png" alt="Peça depois do conserto, com acabamento impecável" class="photo-static-img" onerror="this.style.display='none'">
-            
-            
-            
-            
             <i class="fa-solid fa-shirt" style="color:var(--pink-deep);"></i>
             <span style="font-size:.75rem; letter-spacing:.1em; text-transform:uppercase; color:var(--pink-deep); font-weight:700;">acabamento impecável</span>
-            <div class="photo-upload" id="afterPhotoUpload" aria-hidden="true"></div>
-            <label class="upload-trigger" for="afterPhotoInput">
-              <span class="upload-trigger-btn"><i class="fa-solid fa-camera"></i></span>
-              <span class="upload-trigger-label">Foto do "depois"</span>
-            </label>
-            <input type="file" accept="image/*" id="afterPhotoInput" class="upload-input" aria-label="Adicionar foto do depois">
-            <button type="button" class="remove-photo-btn" id="afterPhotoRemove" aria-label="Remover foto do depois" title="Remover foto" style="left:10px;">
-              <i class="fa-solid fa-xmark"></i>
-            </button>
           </div>
         </div>
         <div class="compare-tag before">Antes</div>
@@ -1003,7 +1029,7 @@ footer { background: linear-gradient(180deg, var(--bg-alt), var(--beige-dark)); 
   <div class="container">
     <div class="section-head" data-reveal>
       <div class="eyebrow">Como funciona</div>
-      <h2 class="section-title">Do tecido à <em>entrega</em></h2>
+      <h2 class="section-title">Do tecido à <em>retirada</em></h2>
     </div>
 
     <div class="timeline">
@@ -1012,7 +1038,7 @@ footer { background: linear-gradient(180deg, var(--bg-alt), var(--beige-dark)); 
       <div class="tl-item" data-reveal="left"><div class="tl-dot"><i class="fa-solid fa-tags"></i></div><div class="tl-text"><h3>Orçamento</h3><p>Valor e prazo combinados antes de qualquer costura.</p></div></div>
       <div class="tl-item" data-reveal="left"><div class="tl-dot"><i class="fa-solid fa-scissors"></i></div><div class="tl-text"><h3>Costura</h3><p>Mãos de anos de experiência cuidando de cada ponto.</p></div></div>
       <div class="tl-item" data-reveal="left"><div class="tl-dot"><i class="fa-solid fa-sparkles"></i></div><div class="tl-text"><h3>Acabamento</h3><p>Revisão final, ferro e detalhes de alta-costura.</p></div></div>
-      <div class="tl-item" data-reveal="left"><div class="tl-dot"><i class="fa-solid fa-box-open"></i></div><div class="tl-text"><h3>Entrega</h3><p>Peça pronta para retirada ou entrega no bairro.</p></div></div>
+      <div class="tl-item" data-reveal="left"><div class="tl-dot"><i class="fa-solid fa-box-open"></i></div><div class="tl-text"><h3>Retirada</h3><p>Peça pronta para retirada no ateliê.</p></div></div>
     </div>
   </div>
 </section>
@@ -1078,12 +1104,12 @@ footer { background: linear-gradient(180deg, var(--bg-alt), var(--beige-dark)); 
         <div class="faq-a"><p>Sim! Trabalhamos com seda, renda, tule e outros tecidos delicados com técnicas específicas para preservar o caimento.</p></div>
       </div>
       <div class="faq-item">
-        <button class="faq-q">Como funciona a entrega no bairro? <i class="fa-solid fa-plus"></i></button>
-        <div class="faq-a"><p>Após o acabamento, a peça pode ser entregue na região do Jangurussu mediante uma pequena taxa, combinada no orçamento.</p></div>
+        <button class="faq-q">Como funciona a retirada da peça? <i class="fa-solid fa-plus"></i></button>
+        <div class="faq-a"><p>Trabalhamos apenas com retirada no ateliê. Assim que sua peça ficar pronta, avisamos pelo WhatsApp para combinar o melhor horário.</p></div>
       </div>
       <div class="faq-item">
         <button class="faq-q">Posso pagar pelo Pix? <i class="fa-solid fa-plus"></i></button>
-        <div class="faq-a"><p>Sim, aceitamos Pix, dinheiro e cartão. O pagamento é feito na retirada ou entrega da peça.</p></div>
+        <div class="faq-a"><p>Sim, aceitamos Pix, dinheiro e cartão. O pagamento é feito na retirada da peça.</p></div>
       </div>
     </div>
   </div>
@@ -1386,7 +1412,7 @@ footer { background: linear-gradient(180deg, var(--bg-alt), var(--beige-dark)); 
 
     if (years) {
       const io2 = new IntersectionObserver((entries) => {
-        entries.forEach(en => { if (en.isIntersecting) { animate(years, 18); io2.unobserve(years); } });
+        entries.forEach(en => { if (en.isIntersecting) { animate(years, 38); io2.unobserve(years); } });
       }, { threshold: .5 });
       io2.observe(years);
     }
@@ -1467,23 +1493,47 @@ footer { background: linear-gradient(180deg, var(--bg-alt), var(--beige-dark)); 
 
   /* -------------------- CALCULADORA INTELIGENTE -------------------- */
   function initCalculator() {
-    const tipo = $('#calcTipo'), servico = $('#calcServico'), qtd = $('#calcQtd'),
-      urg = $('#calcUrgencia'), entrega = $('#calcEntrega'), out = $('#calcValue'), waBtn = $('#calcWhatsapp');
+    const tipo = $('#calcTipo'), servico = $('#calcServico'), tipo2 = $('#calcTipo2'), servico2 = $('#calcServico2'),
+      servico2Wrap = $('#calcServico2Wrap'), addServico2Btn = $('#calcAddServico2'), removeServico2Btn = $('#calcRemoveServico2'),
+      urg = $('#calcUrgencia'), out = $('#calcValue'), waBtn = $('#calcWhatsapp');
     if (!tipo) return;
 
+    function showServico2() {
+      servico2Wrap.hidden = false;
+      addServico2Btn.hidden = true;
+      calc();
+    }
+    function hideServico2() {
+      servico2Wrap.hidden = true;
+      addServico2Btn.hidden = false;
+      calc();
+    }
+
+    on(addServico2Btn, 'click', showServico2);
+    on(removeServico2Btn, 'click', hideServico2);
+
     function calc() {
-      const base = parseFloat(servico.selectedOptions[0].dataset.base || '15');
       const mult = parseFloat(urg.selectedOptions[0].dataset.mult || '1');
-      const add = parseFloat(entrega.selectedOptions[0].dataset.add || '0');
-      const q = Math.max(1, parseInt(qtd.value || '1', 10));
-      const total = (base * q * mult) + add;
+
+      const base1 = parseFloat(servico.selectedOptions[0].dataset.base || '15');
+      let servicosTotal = base1;
+      let servicosLista = `${tipo.value} - ${servico.value}`;
+
+      const temServico2 = !servico2Wrap.hidden;
+      if (temServico2) {
+        const base2 = parseFloat(servico2.selectedOptions[0].dataset.base || '15');
+        servicosTotal += base2;
+        servicosLista += ` + ${tipo2.value} - ${servico2.value}`;
+      }
+
+      const total = servicosTotal * mult;
       out.textContent = total.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
 
-      const msg = `Olá! Gostaria de um orçamento:%0A• Peça: ${tipo.value}%0A• Serviço: ${servico.value}%0A• Quantidade: ${q}%0A• Urgência: ${urg.value}%0A• Entrega: ${entrega.value}%0A• Estimativa: R$ ${total.toFixed(2)}%0A%0AObs: entrada de 50%25 para iniciar o conserto, restante pago na entrega.`;
+      const msg = `Olá! Gostaria de um orçamento:%0A• Peça(s) e serviço(s): ${servicosLista}%0A• Urgência: ${urg.value}%0A• Retirada: Somente no ateliê%0A• Estimativa: R$ ${total.toFixed(2)}%0A%0AObs: entrada de 50%25 para iniciar o conserto, restante pago na retirada.`;
       waBtn.href = `https://wa.me/5585999221634?text=${msg}`;
       return total;
     }
-    [tipo, servico, qtd, urg, entrega].forEach(el => on(el, 'input', calc));
+    [tipo, servico, tipo2, servico2, urg].forEach(el => on(el, 'input', calc));
     calc();
   }
 
@@ -1554,27 +1604,25 @@ footer { background: linear-gradient(180deg, var(--bg-alt), var(--beige-dark)); 
       inputEl: $('#aboutPhotoInput'),
       removeEl: $('#aboutPhotoRemove')
     });
-    setupSlot({
-      key: 'antes',
-      frameEl: $('#compareBeforeSide'),
-      layerEl: $('#beforePhotoUpload'),
-      inputEl: $('#beforePhotoInput'),
-      removeEl: $('#beforePhotoRemove')
-    });
-    setupSlot({
-      key: 'depois',
-      frameEl: $('#compareAfterSide'),
-      layerEl: $('#afterPhotoUpload'),
-      inputEl: $('#afterPhotoInput'),
-      removeEl: $('#afterPhotoRemove')
-    });
+    // O bloco "Antes e Depois" agora usa apenas as imagens estáticas definidas
+    // no HTML (./img/antes.jpeg e ./img/foto.png) — sem upload pelo visitante.
   }
 
   /* -------------------- ANTES E DEPOIS (slider) -------------------- */
   function initCompare() {
-    const box = $('#compareBox'), inner = $('#compareAfterInner'), handle = $('#compareHandle');
+    const box = $('#compareBox'), inner = $('#compareAfterInner'), afterSide = $('#compareAfterSide'), handle = $('#compareHandle');
     if (!box) return;
     let dragging = false;
+
+    // A imagem "depois" recebe sempre a largura/altura TOTAL do slider (em px),
+    // enquanto ".compare-after-inner" funciona só como uma janela de recorte que
+    // muda de largura ao arrastar. Assim as duas fotos (antes/depois) ficam do
+    // mesmo tamanho e perfeitamente alinhadas/centralizadas — sem esticar ou
+    // "dar zoom" conforme o arraste se move de um lado para o outro.
+    function syncAfterSize() {
+      afterSide.style.width = box.offsetWidth + 'px';
+      afterSide.style.height = box.offsetHeight + 'px';
+    }
 
     function setPos(clientX) {
       const r = box.getBoundingClientRect();
@@ -1583,6 +1631,11 @@ footer { background: linear-gradient(180deg, var(--bg-alt), var(--beige-dark)); 
       inner.style.width = pct + '%';
       handle.style.left = pct + '%';
     }
+
+    syncAfterSize();
+    on(window, 'resize', throttle(syncAfterSize, 150));
+    on(window, 'orientationchange', syncAfterSize);
+
     on(box, 'mousedown', () => dragging = true);
     on(window, 'mouseup', () => dragging = false);
     on(window, 'mousemove', (e) => { if (dragging) setPos(e.clientX); });
